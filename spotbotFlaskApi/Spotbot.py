@@ -1,6 +1,6 @@
 from Auth_Manager import AuthManager
 from Decorators import setInterval
-import requests
+from SpotApi import *
 import logging
 import spotipy
 class Spotbot:
@@ -13,9 +13,12 @@ class Spotbot:
         self.bot_id = self.spotipy_client.current_user()['id']
         self.fetch_refresh_token()
 
+    def get_current_playing_song(self):
+        return invoke_spotify_api("current_playing", self.access_token)["item"]["name"]
+
+
     def next_song(self):
-        r = requests.post('https://api.spotify.com/v1/me/player/next', data={
-        },headers={'Authorization': 'Bearer {}'.format(self.access_token)})
+        r = requests.post('https://api.spotify.com/v1/me/player/next',headers={'Authorization': 'Bearer {}'.format(self.access_token)})
         print("text: {}".format(r.text))
         print("content:{}".format(r.content))
 

@@ -26,3 +26,6 @@ class Routes:
         def get_info():
             self.bots.bots[0].next_song()
             return "Skipping"
+        @self.app.route('/getplaying')
+        def get_playing():
+            return self.bots.bots[0].get_current_playing_song()
