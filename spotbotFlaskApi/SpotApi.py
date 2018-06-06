@@ -1,21 +1,103 @@
 import json
 import requests
-import time
+import base64
 
-endpoints = {
-    "current_playing":["get", "https://api.spotify.com/v1/me/player"],
-    "pause": ["put", "https://api.spotify.com/v1/me/player/pause"]
-}
 
-def invoke_spotify_api(func, access_token):
-    endpoint = endpoints[func]
-    auth_header = {'Authorization': 'Bearer {}'.format(access_token)}
-    r = None
-    if endpoint[0] == "get":
-        r = requests.get(endpoint[1], headers=auth_header, timeout=120.0)
-    if endpoint[0] == "put":
-        r = requests.put(endpoint[1], headers=auth_header)
-    if r.status_code != 200:
+def __make_api_call(**kwargs):
+
+    url = kwargs.get('url')
+    method = kwargs.get('method')
+    header = kwargs.get('header')
+    body = kwargs.get('body')
+    params = kwargs.get('params')
+
+    if method == "GET":
+        r = requests.get(url=url, headers=header, params=params)
+    if method == "POST":
+        r = requests.post(url=url, data=body, headers=header)
+    if method == "PUT":
+        r = requests.put(url=url, data=body, headers=header)
+    if method == "DELETE":
+        r = requests.delete(url=url, data=body, headers=header)
+
+    if(not r.ok):
+        raise Exception("{}: {}".format(r.status_code, r.text))
+    if r.text == "" or r.text == None:
         return None
-    else:
-        return json.loads(r.text)
+    return json.loads(r.text)
+
+def get_user_id(access_token):
+    auth_header = {'Authorization': 'Bearer {}'.format(access_token)}
+    return __make_api_call(url="https://api.spotify.com/v1/me",
+                           method="GET",
+                           header=auth_header)
+
+def get_current_playing(access_token):
+    auth_header = {'Authorization': 'Bearer {}'.format(access_token)}
+    return __make_api_call(url="https://api.spotify.com/v1/me/player",
+                            method="GET",
+                            header=auth_header)
+
+def create_playlist(access_token, user_id, playlist_name, desc):
+    header = {'Authorization': 'Bearer {}'.format(access_token), "Content-Type": "application/json"}
+    body = {"name": playlist_name,
+            "public": False,
+            "description": desc
+            }
+    return __make_api_call(url="https://api.spotify.com/v1/users/{}/playlists".format(user_id),
+                           method="POST",
+                           header=header,
+                           body=json.dumps(body))
+
+def set_playlist_image(access_token, user_id, playlist_id, image_path):
+    with open(image_path, "rb") as image_file:
+        image_64_encode = base64.b64encode(image_file.read()).decode()
+    print("https://api.spotify.com/v1/users/{}/playlists/{}/images".format(user_id, playlist_id))
+    header = {'Authorization': 'Bearer {}'.format(access_token),
+              "Content-Type": "image/jpeg"}
+    __make_api_call(url="https://api.spotify.com/v1/users/{}/playlists/{}/images".format(user_id, playlist_id),
+                    method="PUT",
+                    body=image_64_encode,
+                    header=header)
+    print(access_token)
+
+
+def clean_playlist(access_token, user_id, playlist_id):
+    has_tracks = True
+    while(has_tracks):
+        tracks = __make_api_call(
+            url="https://api.spotify.com/v1/users/{}/playlists/{}/tracks".format(user_id, playlist_id),
+            header={'Authorization': 'Bearer {}'.format(access_token)},
+            method="GET"
+        )
+        if len(tracks["items"]) == 0:
+            has_tracks = False
+        else:
+            tracks_to_delete = []
+            for track in enumerate(tracks["items"]):
+                tracks_to_delete.append({"uri":track[1]["track"]["uri"]})
+            __make_api_call(
+                url="https://api.spotify.com/v1/users/{}/playlists/{}/tracks".format(user_id, playlist_id),
+                method="DELETE",
+                header={'Authorization': 'Bearer {}'.format(access_token), "Content-Type": "application/json"},
+                body=json.dumps({"tracks": tracks_to_delete})
+            )
+
+def get_playlist_by_name(access_token, playlist_name, user_id):
+    allchecked = False
+    url = "https://api.spotify.com/v1/me/playlists"
+    while(not allchecked):
+        request = __make_api_call(url=url,
+                                  header={'Authorization': 'Bearer {}'.format(access_token)},
+                                  method="GET",
+                                  )
+        for idx, playlist in enumerate(request["items"]):
+            if(playlist["name"] == playlist_name):
+                return __make_api_call(url="https://api.spotify.com/v1/users/{}/playlists/{}".format(user_id, playlist['id']),
+                                       method="GET",
+                                       header={'Authorization': 'Bearer {}'.format(access_token)})
+        if request["next"] == None:
+            allchecked = True
+        else:
+            url = request["next"]
+    return None

@@ -28,7 +28,7 @@ class AuthManager:
         scope = "user-top-read user-read-recently-played user-library-modify user-library-read playlist-modify-public "
         scope += "playlist-modify-private playlist-read-collaborative playlist-read-private user-read-private "
         scope += "user-read-email user-read-birthdate user-follow-modify user-follow-read "
-        scope += "user-read-currently-playing user-read-playback-state user-modify-playback-state"
+        scope += "user-read-currently-playing user-read-playback-state user-modify-playback-state ugc-image-upload"
         uri = 'https://accounts.spotify.com/authorize'
         uri += '?response_type=code'
         uri += '&client_id=' + client_id
