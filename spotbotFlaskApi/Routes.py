@@ -1,6 +1,4 @@
-from Auth_Manager import AuthManager
 from flask import request
-from Spotbot import Spotbot
 
 class Routes:
     def __init__(self, app, bots, callback_uri, client_id, client_secret):
@@ -14,11 +12,10 @@ class Routes:
     def create_routes(self):
         @self.app.route('/login')
         def login():
-            return AuthManager.get_authorization_url(self.callback_uri, self.client_id)
+            return self.bots.get_authorization_url()
         @self.app.route('/callback')
         def callback():
-            self.bots.add_spotbot(Spotbot(request.args.get('code'), self.client_id, self.client_secret, self.callback_uri))
-            return "Success"
+            return self.bots.add_spotbot(request.args.get('code'))
         @self.app.route('/countBots')
         def countBots():
             return str(self.bots.count_bots())
@@ -29,3 +26,6 @@ class Routes:
         @self.app.route('/getplaying')
         def get_playing():
             return self.bots.bots[0].get_current_playing_song()
+        @self.app.route('/addtrack')
+        def addsong():
+            self.bots.bots[0].add_song(request.args.get('trackuri'))

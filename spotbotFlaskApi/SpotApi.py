@@ -26,11 +26,39 @@ def __make_api_call(**kwargs):
         return None
     return json.loads(r.text)
 
+def get_access_and_refresh_token(client_id, client_secret, auth_token, callback_uri):
+    encoded = base64.b64encode("{}:{}".format(client_id, client_secret).encode()).decode()
+    return __make_api_call(url="https://accounts.spotify.com/api/token",
+                                    header={'Content-Type': 'application/x-www-form-urlencoded',
+                                            "Authorization": "Basic {}".format(encoded)},
+                                    body={
+                                        'grant_type': 'authorization_code',
+                                        'code': auth_token,
+                                        'redirect_uri':callback_uri
+                                    },
+                                    method="POST"
+                                    )
+
+
+
+def refresh_token(client_id, client_secret, refresh_token):
+    encoded = base64.b64encode("{}:{}".format(client_id, client_secret).encode()).decode()
+    return __make_api_call(url="https://accounts.spotify.com/api/token",
+                           header={'Content-Type': 'application/x-www-form-urlencoded',
+                                   "Authorization": "Basic {}".format(encoded)},
+                           body={
+                                'grant_type': 'refresh_token',
+                                'refresh_token': refresh_token
+                           },
+                           method="POST"
+                           )['access_token']
+
+
 def get_user_id(access_token):
     auth_header = {'Authorization': 'Bearer {}'.format(access_token)}
     return __make_api_call(url="https://api.spotify.com/v1/me",
                            method="GET",
-                           header=auth_header)
+                           header=auth_header)['id']
 
 def get_current_playing(access_token):
     auth_header = {'Authorization': 'Bearer {}'.format(access_token)}
@@ -101,3 +129,13 @@ def get_playlist_by_name(access_token, playlist_name, user_id):
         else:
             url = request["next"]
     return None
+
+def add_song_to_playlist(access_token, user_id, playlist_id, track_uri):
+    __make_api_call(url="https://api.spotify.com/v1/users/{}/playlists/{}/tracks".format(user_id, playlist_id),
+                    method="POST",
+                    header={'Authorization': 'Bearer {}'.format(access_token), "Content-Type": "application/json"},
+                    body=json.dumps({
+                        "uris": [track_uri]
+                    }))
+
+

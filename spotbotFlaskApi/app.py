@@ -19,7 +19,7 @@ if (app_config['debug']):
 else:
     logger.setLevel(logging.INFO)
 
-bots = Bots()
+bots = Bots(secrets['client_id'], secrets['client_secret'], secrets['callback_uri'] )
 application = Flask(__name__)
 routes = Routes(application, bots, secrets['callback_uri'], secrets['client_id'], secrets['client_secret'])
 
