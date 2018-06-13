@@ -5,6 +5,8 @@ def analyse_request(request, bot, client_id, callback_uri):
     intent = js['queryResult']['intent']['displayName']
     if(intent == 'spotify-login-request'):
         message = __get_login(client_id, callback_uri)
+    if(intent == "playing-song"):
+        message = __get_playing_song(bot)
 
     data = {
         'fulfillmentText': message
@@ -22,3 +24,10 @@ def __get_login(client_id, callback_uri):
     uri += '&scope=' + urllib.parse.quote(scope)
     uri += '&redirect_uri=' + urllib.parse.quote(callback_uri)
     return uri
+
+def __get_playing_song(bot):
+    if(bot == None):
+        message = "Please log in first"
+    else:
+        message = bot.get_current_playing_song()
+    return message

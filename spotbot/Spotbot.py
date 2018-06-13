@@ -17,16 +17,14 @@ class Spotbot:
         playlist_name = "Spot Bot"
         if(get_playlist_by_name(self.access_token, playlist_name, self.api_user_id) == None):
             create_playlist(self.access_token, self.api_user_id, playlist_name, playlist_name)
-            print("Playlist Found!")
-        else:
-            print("playlist Not Found")
         self.bot_playlist_id = get_playlist_by_name(self.access_token, playlist_name, self.api_user_id)['id']
         clean_playlist(self.access_token, self.api_user_id, self.bot_playlist_id)
         set_playlist_image(self.access_token, self.api_user_id, self.bot_playlist_id, 'bot.jpeg')
 
 
     def get_current_playing_song(self):
-        return get_current_playing(self.access_token)["item"]["name"]
+        song = get_current_playing(self.access_token)
+        return "{} - {}".format(song["item"]["artists"][0]["name"], song["item"]["name"])
 
     def add_song(self, track_uri):
         add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, track_uri)
