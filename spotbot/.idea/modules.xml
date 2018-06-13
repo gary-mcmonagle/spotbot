@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/spotbotFlaskApi.iml" filepath="$PROJECT_DIR$/.idea/spotbotFlaskApi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/spotbot.iml" filepath="$PROJECT_DIR$/.idea/spotbot.iml" />
     </modules>
   </component>
 </project>

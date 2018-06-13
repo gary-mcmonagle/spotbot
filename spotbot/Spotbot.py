@@ -2,9 +2,10 @@ from Decorators import setInterval
 from SpotApi import *
 
 class Spotbot:
-    def __init__(self, access_token, refresh_token, client_id, client_secret, callback_uri):
-        self.access_token = access_token
-        self.refresh_token = refresh_token
+    def __init__(self, auth_token , client_id, client_secret, callback_uri):
+        tokens = get_access_and_refresh_token(client_id, client_secret, auth_token, callback_uri)
+        self.access_token = tokens['access_token']
+        self.refresh_token = tokens['refresh_token']
         self.client_id = client_id
         self.client_secret = client_secret
         self.callback_uri = callback_uri
@@ -16,6 +17,9 @@ class Spotbot:
         playlist_name = "Spot Bot"
         if(get_playlist_by_name(self.access_token, playlist_name, self.api_user_id) == None):
             create_playlist(self.access_token, self.api_user_id, playlist_name, playlist_name)
+            print("Playlist Found!")
+        else:
+            print("playlist Not Found")
         self.bot_playlist_id = get_playlist_by_name(self.access_token, playlist_name, self.api_user_id)['id']
         clean_playlist(self.access_token, self.api_user_id, self.bot_playlist_id)
         set_playlist_image(self.access_token, self.api_user_id, self.bot_playlist_id, 'bot.jpeg')
