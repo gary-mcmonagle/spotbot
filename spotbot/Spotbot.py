@@ -11,6 +11,7 @@ class Spotbot:
         self.callback_uri = callback_uri
         self.api_user_id = get_user_id(self.access_token)
         self.__set_up_bot_playlist()
+        self.admin_session = None
 
 
     def __set_up_bot_playlist(self):
@@ -26,8 +27,9 @@ class Spotbot:
         song = get_current_playing(self.access_token)
         return "{} - {}".format(song["item"]["artists"][0]["name"], song["item"]["name"])
 
-    def add_song(self, track_uri):
-        add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, track_uri)
+    def queue_request(self, track_name, artist_name):
+        search_for_song(self.access_token, track_name, artist_name)
+        print("Song Requested - {}-{}".format(artist_name, track_name))
 
 
     @setInterval(60)

@@ -1,4 +1,4 @@
-from flask import request,Response
+from flask import request,Response,send_from_directory
 import json
 from Spotbot import Spotbot
 from RequestManager import analyse_request
@@ -16,7 +16,7 @@ class Routes:
         @self.app.route('/callback', methods=["GET"])
         def callback():
             self.bot = Spotbot(request.args.get('code'), self.client_id, self.client_secret, self.callback_uri)
-            return request.args.get('code')
+            return send_from_directory(".","callback.html")
         @self.app.route('/webhook', methods=["POST"])
         def webhook():
             js = json.dumps(analyse_request(request.data.decode('utf-8'), self.bot, self.client_id, self.callback_uri))

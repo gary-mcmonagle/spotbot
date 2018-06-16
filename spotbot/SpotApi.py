@@ -2,7 +2,6 @@ import json
 import requests
 import base64
 
-
 def __make_api_call(**kwargs):
 
     url = kwargs.get('url')
@@ -129,6 +128,22 @@ def get_playlist_by_name(access_token, playlist_name, user_id):
         else:
             url = request["next"]
     return None
+
+def search_for_song(access_token, track_name, artist):
+    q = "artist:{} {}".format(artist, track_name)
+    print(q)
+    call = __make_api_call(url="https://api.spotify.com/v1/search",
+                    params={"q": q,
+                            "type":"track",
+                            #Hardoded IE fix later (maybe)
+                            "market": "IE"},
+                    header={'Authorization': 'Bearer {}'.format(access_token),
+                            "Content-Type": "application/json",
+                            "Accept":"application/json"},
+                    method="GET"
+                    )
+    print(call)
+
 
 def add_song_to_playlist(access_token, user_id, playlist_id, track_uri):
     __make_api_call(url="https://api.spotify.com/v1/users/{}/playlists/{}/tracks".format(user_id, playlist_id),
