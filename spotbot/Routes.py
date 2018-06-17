@@ -19,6 +19,7 @@ class Routes:
             return send_from_directory(".","callback.html")
         @self.app.route('/webhook', methods=["POST"])
         def webhook():
-            js = json.dumps(analyse_request(request.data.decode('utf-8'), self.bot, self.client_id, self.callback_uri))
+            js = analyse_request(request.data.decode('utf-8'), self.bot, self.client_id, self.callback_uri)
+            print(js)
             resp = Response(js, status=200, mimetype='application/json')
             return resp
