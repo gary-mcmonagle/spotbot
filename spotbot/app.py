@@ -9,7 +9,11 @@ with open('config.json') as f:
 
 
 application = Flask(__name__)
-routes = Routes(application, secrets['callback_uri'], secrets['client_id'], secrets['client_secret'])
+#routes = Routes(application, secrets['bot_url'], secrets['client_id'], secrets['client_secret'], secrets["skype_client_id"],
+#                secrets["skype_client_secret"])
+
+#could just pass in hash of all secrets and configs ??
+routes = Routes(application, app_config)
 
 if __name__ == "__main__":
     application.debug = app_config['debug']

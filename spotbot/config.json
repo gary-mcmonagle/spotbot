@@ -1,3 +1,8 @@
 {
-  "debug": true
+  "debug": true,
+  "client_id":"<spotify app client id>",
+  "client_secret": "<spotify app client secret>",
+  "bot_url": "<bot url>",
+  "skype_client_secret": "<botconnector client secret>",
+  "skype_client_id":"<bot connector client id>"
 }

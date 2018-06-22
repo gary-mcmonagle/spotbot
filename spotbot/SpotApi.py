@@ -26,6 +26,8 @@ def __make_api_call(**kwargs):
     return json.loads(r.text)
 
 def get_access_and_refresh_token(client_id, client_secret, auth_token, callback_uri):
+    print("callback: {}".format(callback_uri))
+    print("auth_token: {}".format(auth_token))
     encoded = base64.b64encode("{}:{}".format(client_id, client_secret).encode()).decode()
     return __make_api_call(url="https://accounts.spotify.com/api/token",
                                     header={'Content-Type': 'application/x-www-form-urlencoded',
@@ -33,7 +35,7 @@ def get_access_and_refresh_token(client_id, client_secret, auth_token, callback_
                                     body={
                                         'grant_type': 'authorization_code',
                                         'code': auth_token,
-                                        'redirect_uri':callback_uri
+                                        'redirect_uri': callback_uri
                                     },
                                     method="POST"
                                     )

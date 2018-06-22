@@ -1,0 +1,71 @@
+{
+    "originalDetectIntentRequest": {
+        "payload": {
+            "data": {
+                "address": {
+                    "bot": {
+                        "id": "28:6a5cf287-b9eb-4552-9ca8-f4aaeb1abe94",
+                        "name": "spot-bot"
+                    },
+                    "channelId": "skype",
+                    "conversation": {
+                        "id": "29:1IDJJYK0XXqCaxUZChXMhLDjuN7ChcZClQAxouR5bsd34WMzEFsAIn4vYfPU_wD7y"
+                    },
+                    "id": "1529650750757",
+                    "serviceUrl": "https://smba.trafficmanager.net/apis/",
+                    "user": {
+                        "id": "29:1IDJJYK0XXqCaxUZChXMhLDjuN7ChcZClQAxouR5bsd34WMzEFsAIn4vYfPU_wD7y"
+                    }
+                },
+                "agent": "botbuilder",
+                "attachments": [],
+                "entities": [
+                    {
+                        "country": "IE",
+                        "locale": "en-IE",
+                        "platform": "Windows",
+                        "type": "clientInfo"
+                    }
+                ],
+                "source": "skype",
+                "sourceEvent": {
+                    "text": "Elbow"
+                },
+                "text": "Elbow",
+                "timestamp": "2018-06-22T06:59:10.771Z",
+                "type": "message",
+                "user": {
+                    "id": "29:1IDJJYK0XXqCaxUZChXMhLDjuN7ChcZClQAxouR5bsd34WMzEFsAIn4vYfPU_wD7y"
+                }
+            },
+            "source": "skype"
+        },
+        "source": "skype"
+    },
+    "queryResult": {
+        "allRequiredParamsPresent": true,
+        "diagnosticInfo": {},
+        "fulfillmentMessages": [
+            {
+                "text": {
+                    "text": [
+                        ""
+                    ]
+                }
+            }
+        ],
+        "intent": {
+            "displayName": "queue-request",
+            "name": "projects/spot-bot-bcb7c/agent/intents/3435daf8-e8fa-45de-95b1-d03292ecf37b"
+        },
+        "intentDetectionConfidence": 1.0,
+        "languageCode": "en",
+        "parameters": {
+            "artist-name": "Elbow",
+            "track-title": "Mirrorball"
+        },
+        "queryText": "Elbow"
+    },
+    "responseId": "fa504c11-1d1d-43c1-bb71-bb4fc91ead53",
+    "session": "projects/spot-bot-bcb7c/agent/sessions/dc0e09c6-ccaf-4b4b-a438-a6afd5d54f05"
+}
