@@ -1,6 +1,7 @@
 import json
 import requests
 import base64
+import logging
 
 def __make_api_call(**kwargs):
 
@@ -26,8 +27,7 @@ def __make_api_call(**kwargs):
     return json.loads(r.text)
 
 def get_access_and_refresh_token(client_id, client_secret, auth_token, callback_uri):
-    print("callback: {}".format(callback_uri))
-    print("auth_token: {}".format(auth_token))
+    logging.info("Requesting Auth Token")
     encoded = base64.b64encode("{}:{}".format(client_id, client_secret).encode()).decode()
     return __make_api_call(url="https://accounts.spotify.com/api/token",
                                     header={'Content-Type': 'application/x-www-form-urlencoded',
@@ -43,6 +43,7 @@ def get_access_and_refresh_token(client_id, client_secret, auth_token, callback_
 
 
 def refresh_token(client_id, client_secret, refresh_token):
+    logging.info("Getting RefreshToken")
     encoded = base64.b64encode("{}:{}".format(client_id, client_secret).encode()).decode()
     return __make_api_call(url="https://accounts.spotify.com/api/token",
                            header={'Content-Type': 'application/x-www-form-urlencoded',
@@ -79,16 +80,15 @@ def create_playlist(access_token, user_id, playlist_name, desc):
                            body=json.dumps(body))
 
 def set_playlist_image(access_token, user_id, playlist_id, image_path):
+    logging.info("Setting PLaylist Image")
     with open(image_path, "rb") as image_file:
         image_64_encode = base64.b64encode(image_file.read()).decode()
-    print("https://api.spotify.com/v1/users/{}/playlists/{}/images".format(user_id, playlist_id))
     header = {'Authorization': 'Bearer {}'.format(access_token),
               "Content-Type": "image/jpeg"}
     __make_api_call(url="https://api.spotify.com/v1/users/{}/playlists/{}/images".format(user_id, playlist_id),
                     method="PUT",
                     body=image_64_encode,
                     header=header)
-    print(access_token)
 
 
 def clean_playlist(access_token, user_id, playlist_id):

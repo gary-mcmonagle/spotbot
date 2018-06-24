@@ -1,5 +1,5 @@
 from flask import request,Response,send_from_directory
-import json
+import logging
 from Spotbot import Spotbot
 from RequestManager import RequestManager
 
@@ -17,13 +17,10 @@ class Routes:
             self.bot = Spotbot(request.args.get('code'), self.config["client_id"], self.config["client_secret"],
                                self.config["bot_url"]+"/callback")
             self.request_manager.set_bot(self.bot)
-            print(request.args.get("state"))
             self.request_manager.login_recieved(request.args.get("state"))
             return send_from_directory(".","callback.html")
         @self.app.route('/webhook', methods=["POST"])
         def webhook():
-            print(request.data.decode('utf-8'))
             js = self.request_manager.analyse_request(request.data.decode('utf-8'))
-            print(js)
             resp = Response(js, status=200, mimetype='application/json')
             return resp
