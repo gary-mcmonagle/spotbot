@@ -2,17 +2,13 @@ import json
 import urllib.parse
 from Spotbot import UnfoundTrack
 from proactiveMessgae.ProactiveMessage import ProactiveMessage
+import jwt
 class RequestManager:
     def __init__(self, bot, config):
         self.bot = bot
         self.client_id = config["client_id"]
         self.callback_uri = config["bot_url"] + "/callback"
-        try:
-            self.bot_connector_client_id = config["bot_connector_client_id"]
-            self.bot_connector_client_secret = config["bot_connector_client_secret"]
-        except:
-            self.bot_connector_client_id = None
-            self.bot_connector_client_secret = None
+        self.pam = ProactiveMessage(config)
 
     #retroactive set bot
     def set_bot(self, bot):
@@ -20,13 +16,13 @@ class RequestManager:
 
     def analyse_request(self, request):
         js = json.loads(request)
-        with open('data.json', 'w') as outfile:
-            json.dump(js, outfile, indent=4, sort_keys=True)
-
-        print(js)
+        # with open('data.json', 'w') as outfile:
+        #     json.dump(js, outfile, indent=4, sort_keys=True)
+        #
+        # print(js)
         intent = js['queryResult']['intent']['displayName']
         if intent == 'admin.spotify.login':
-            data = self.__admin_login()
+            data = self.__admin_login(request)
         elif intent == "session_init":
             data = self.__session_init()
         elif intent == "queue-request":
@@ -38,7 +34,19 @@ class RequestManager:
 
         return data
 
-    def __admin_login(self):
+    def login_recieved(self, jwt_token):
+        print("JWT: {}".format(jwt_token))
+        decoded = jwt.decode(jwt_token, "verysecvallad", algorithms='HS256')
+        print(decoded)
+        self.pam.send_message("ms_bot_connector", {
+            "converstaion_id":  urllib.parse.quote(decoded["data"]["address"]["conversation"]["id"]),
+            "message":"log in succesful",
+             "service_url": decoded["data"]["address"]["serviceUrl"],
+            "bot_id": decoded["data"]["address"]["bot"]["id"],
+            "bot_name": decoded["data"]["address"]["bot"]["name"]
+        })
+
+    def __admin_login(self, request):
         scope = "user-top-read user-read-recently-played user-library-modify user-library-read playlist-modify-public "
         scope += "playlist-modify-private playlist-read-collaborative playlist-read-private user-read-private "
         scope += "user-read-email user-read-birthdate user-follow-modify user-follow-read "
@@ -48,18 +56,20 @@ class RequestManager:
         uri += '&client_id=' + self.client_id
         uri += '&scope=' + urllib.parse.quote(scope)
         uri += '&redirect_uri=' + urllib.parse.quote(self.callback_uri)
+        uri += "&state=" + self.__set_state_param(request)
+        self.__set_state_param(request)
         return json.dumps({'fulfillmentText': uri})
+
+    def __set_state_param(self,request):
+        encoded_token = jwt.encode(json.loads(request)["originalDetectIntentRequest"]["payload"], "verysecvallad", algorithm='HS256')
+        return encoded_token.decode()
+
     def __get_playing_song(bot):
         if(bot == None):
             return json.dumps({'fulfillmentText': "Please Login"})
         else:
             return json.dumps({'fulfillmentText': bot.get_current_playing_song()})
 
-    def __session_init(self):
-        if bot == None:
-            return self.__admin_login()
-        else:
-            return json.dumps({'fulfillmentText': "Please Login"})
 
     def __queue_request(self, request_json):
         try:

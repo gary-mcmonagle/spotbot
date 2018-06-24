@@ -1,0 +1,57 @@
+import json
+import requests
+from Decorators import setInterval
+
+
+class MsBotConnectorClient:
+    def __init__(self, client_id, client_secret):
+        self.__get_auth_token(client_id, client_secret)
+
+    def send_message(self, message_object):
+        conversation_id = message_object["converstaion_id"]
+        service_url = message_object["service_url"]
+        url = "{}v3/conversations/{}/activities".format(service_url, conversation_id)
+        print(url)
+        print(self.auth_token)
+        print(message_object["message"])
+        r = requests.post(url=url,
+                          data=json.dumps({
+                            'type': 'message',
+                             'text': message_object["message"],
+                              'from': {
+                                  'id': message_object["bot_id"],
+                                  'name': message_object['bot_name']
+                              }
+                          }),
+                          headers={
+                              'Content-Type': 'application/json',
+                              'Authorization': 'Bearer {}'.format(self.auth_token),
+                               "charset":"utf-8"
+                          },
+                          )
+        if (not r.ok):
+            raise Exception("{}: {}".format(r.status_code, r.text))
+        if r.text == "" or r.text == None:
+            return None
+        return json.loads(r.text)
+
+    #@setInterval(15)
+    def __get_auth_token(self, client_id, client_secret):
+        print("Fetching Skype Token")
+        r = requests.post(url="https://login.microsoftonline.com/botframework.com/oauth2/v2.0/token",
+                          data={
+                              "grant_type": "client_credentials",
+                              "client_id": client_id,
+                              "client_secret": client_secret,
+                              "scope":"https://api.botframework.com/.default"
+                          },
+                          headers={
+                              "Content-Type": "application/x-www-form-urlencoded",
+                              "Host": "login.microsoftonline.com"
+                          })
+        if (not r.ok):
+            raise Exception("{}: {}".format(r.status_code, r.text))
+        if r.text == "" or r.text == None:
+            return None
+        self.auth_token =  json.loads(r.text)["access_token"]
+        print("AT: {}".format(self.auth_token))

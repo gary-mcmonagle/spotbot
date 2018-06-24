@@ -17,6 +17,8 @@ class Routes:
             self.bot = Spotbot(request.args.get('code'), self.config["client_id"], self.config["client_secret"],
                                self.config["bot_url"]+"/callback")
             self.request_manager.set_bot(self.bot)
+            print(request.args.get("state"))
+            self.request_manager.login_recieved(request.args.get("state"))
             return send_from_directory(".","callback.html")
         @self.app.route('/webhook', methods=["POST"])
         def webhook():
