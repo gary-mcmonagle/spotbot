@@ -25,6 +25,7 @@ def __message_base_set_up(message, type , kwargs):
             "id": kwargs.get("bot_id"),
             "name": kwargs.get("bot_name")
         }
+    print("Message: {}".format(message))
     return message
 
 def __get_text(message, text, type):

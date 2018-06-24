@@ -19,10 +19,6 @@ class RequestManager:
 
     def analyse_request(self, request):
         js = json.loads(request)
-        # with open('data.json', 'w') as outfile:
-        #     json.dump(js, outfile, indent=4, sort_keys=True)
-        #
-        # print(js)
         intent = js['queryResult']['intent']['displayName']
         if intent == 'admin.spotify.login':
             data = self.__admin_login(request)
@@ -40,20 +36,13 @@ class RequestManager:
     def login_recieved(self, jwt_token):
         print("JWT: {}".format(jwt_token))
         decoded = jwt.decode(jwt_token, self.jwt_key, algorithms='HS256')
-        bot_id = decoded["data"]["address"]["bot"]["id"]
-        converation_id = urllib.parse.quote(decoded["data"]["address"]["conversation"]["id"])
-        bot_name = decoded["data"]["address"]["bot"]["name"]
-        service_url = decoded["data"]["address"]["serviceUrl"]
-        self.pam.send_message(Constant.BOT_CONNECTOR_MESSAGE, generate_message(
-            type=Constant.BOT_CONNECTOR_MESSAGE,
-            text="Logged in!",
-            bot_id = bot_id,
-            bot_name = bot_name
-        ), converation_id=converation_id, service_url = service_url)
+        base_message = self.__format_by_type(decoded)
+        base_message["text"] = "Logged In Successfully!"
+        self.pam.send_message(base_message["type"], generate_message(**base_message), **base_message)
 
 
     def __admin_login(self, request):
-        state_token = jwt.encode(json.loads(request)["originalDetectIntentRequest"]["payload"], self.jwt_key, algorithm='HS256').decode()
+        state_token = jwt.encode(json.loads(request), self.jwt_key, algorithm='HS256').decode()
         scope = "user-top-read user-read-recently-played user-library-modify user-library-read playlist-modify-public "
         scope += "playlist-modify-private playlist-read-collaborative playlist-read-private user-read-private "
         scope += "user-read-email user-read-birthdate user-follow-modify user-follow-read "
@@ -87,6 +76,20 @@ class RequestManager:
                                skype_client_id=self.bot_connector_client_secret)
         return json.dumps({'fulfillmentText': "Look at console"})
 
+    def __format_by_type(self, request_info):
+        bot_type = self.__determine_type(request_info)
+        base_message = {}
+        if bot_type == Constant.BOT_CONNECTOR_MESSAGE:
+            base_message = {
+                "bot_id": request_info["originalDetectIntentRequest"]["payload"]["data"]["address"]["bot"]["id"],
+                "conversation_id": urllib.parse.quote(request_info["originalDetectIntentRequest"]["payload"]["data"]["address"]["conversation"]["id"]),
+                "bot_name": request_info["originalDetectIntentRequest"]["payload"]["data"]["address"]["bot"]["name"],
+                "service_url": request_info["originalDetectIntentRequest"]["payload"]["data"]["address"]["serviceUrl"]
+            }
+        base_message["type"] = bot_type
+        return base_message
 
-
-#def
+    def __determine_type(self, request_info):
+        print("Source: {}".format(request_info["originalDetectIntentRequest"]["source"]))
+        if request_info["originalDetectIntentRequest"]["source"] == "skype":
+            return Constant.BOT_CONNECTOR_MESSAGE

@@ -8,12 +8,9 @@ class MsBotConnectorClient:
         self.__get_auth_token(client_id, client_secret)
 
     def send_message(self, message, **kwargs):
-        conversation_id = kwargs.get("converation_id")
+        conversation_id = kwargs.get("conversation_id")
         service_url = kwargs.get("service_url")
         url = "{}v3/conversations/{}/activities".format(service_url, conversation_id)
-
-        print(url)
-        print(self.auth_token)
         r = requests.post(url=url,
                           data= message,
                           headers={
