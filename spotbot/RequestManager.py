@@ -2,12 +2,14 @@ import json
 import urllib.parse
 from Spotbot import UnfoundTrack
 from proactiveMessgae.ProactiveMessage import ProactiveMessage
+from MessageGenerator import generate_message
 import jwt
 class RequestManager:
     def __init__(self, bot, config):
         self.bot = bot
         self.client_id = config["client_id"]
         self.callback_uri = config["bot_url"] + "/callback"
+        self.jwt_key = config["jwt_key"]
         self.pam = ProactiveMessage(config)
 
     #retroactive set bot
@@ -36,7 +38,7 @@ class RequestManager:
 
     def login_recieved(self, jwt_token):
         print("JWT: {}".format(jwt_token))
-        decoded = jwt.decode(jwt_token, "verysecvallad", algorithms='HS256')
+        decoded = jwt.decode(jwt_token, self.jwt_key, algorithms='HS256')
         print(decoded)
         self.pam.send_message("ms_bot_connector", {
             "converstaion_id":  urllib.parse.quote(decoded["data"]["address"]["conversation"]["id"]),
@@ -47,6 +49,7 @@ class RequestManager:
         })
 
     def __admin_login(self, request):
+        state_token = jwt.encode(json.loads(request)["originalDetectIntentRequest"]["payload"], self.jwt_key, algorithm='HS256').decode()
         scope = "user-top-read user-read-recently-played user-library-modify user-library-read playlist-modify-public "
         scope += "playlist-modify-private playlist-read-collaborative playlist-read-private user-read-private "
         scope += "user-read-email user-read-birthdate user-follow-modify user-follow-read "
@@ -56,16 +59,11 @@ class RequestManager:
         uri += '&client_id=' + self.client_id
         uri += '&scope=' + urllib.parse.quote(scope)
         uri += '&redirect_uri=' + urllib.parse.quote(self.callback_uri)
-        uri += "&state=" + self.__set_state_param(request)
-        self.__set_state_param(request)
-        return json.dumps({'fulfillmentText': uri})
-
-    def __set_state_param(self,request):
-        encoded_token = jwt.encode(json.loads(request)["originalDetectIntentRequest"]["payload"], "verysecvallad", algorithm='HS256')
-        return encoded_token.decode()
+        uri += "&state=" + state_token
+        return generate_message(text=uri)
 
     def __get_playing_song(bot):
-        if(bot == None):
+        if bot is None:
             return json.dumps({'fulfillmentText': "Please Login"})
         else:
             return json.dumps({'fulfillmentText': bot.get_current_playing_song()})
@@ -75,11 +73,10 @@ class RequestManager:
         try:
             self.bot.queue_request(request_json["queryResult"]["parameters"]["track-title"],
                                      request_json["queryResult"]["parameters"]["artist-name"])
-            data = {'fulfillmentText': "Song added!"}
+            data = generate_message(text="Song Added!")
         except UnfoundTrack:
-            data = {'fulfillmentText': "Sorry could'nt find that song"}
-
-        return json.dumps(data)
+            data = generate_message(text="Sorry Couldnt find that song :(")
+        return data
 
     def __get_skype_token(self):
         pam = ProactiveMessage("skype", None, skype_client_secret=self.bot_connector_client_id,
