@@ -1,4 +1,5 @@
 from proactiveMessgae.MsBotConnectorClient import MsBotConnectorClient
+import Constant
 class ProactiveMessage:
     def __init__(self, config):
         try:
@@ -8,10 +9,9 @@ class ProactiveMessage:
             print("no config found for ms bot")
 
     def __get_client(self, client_type):
-        if(client_type == "ms_bot_connector"):
+        if(client_type == Constant.BOT_CONNECTOR_MESSAGE):
             return self.ms_connector_client
 
-    def send_message(self, client_type, message_object):
+    def send_message(self, client_type, message, **kwargs):
         client = self.__get_client(client_type)
-        client = self.__get_client(client_type)
-        client.send_message(message_object)
+        client.send_message(message, **kwargs)

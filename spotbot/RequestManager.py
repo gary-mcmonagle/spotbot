@@ -4,6 +4,7 @@ from Spotbot import UnfoundTrack
 from proactiveMessgae.ProactiveMessage import ProactiveMessage
 from MessageGenerator import generate_message
 import jwt
+import Constant
 class RequestManager:
     def __init__(self, bot, config):
         self.bot = bot
@@ -39,14 +40,17 @@ class RequestManager:
     def login_recieved(self, jwt_token):
         print("JWT: {}".format(jwt_token))
         decoded = jwt.decode(jwt_token, self.jwt_key, algorithms='HS256')
-        print(decoded)
-        self.pam.send_message("ms_bot_connector", {
-            "converstaion_id":  urllib.parse.quote(decoded["data"]["address"]["conversation"]["id"]),
-            "message":"log in succesful",
-             "service_url": decoded["data"]["address"]["serviceUrl"],
-            "bot_id": decoded["data"]["address"]["bot"]["id"],
-            "bot_name": decoded["data"]["address"]["bot"]["name"]
-        })
+        bot_id = decoded["data"]["address"]["bot"]["id"]
+        converation_id = urllib.parse.quote(decoded["data"]["address"]["conversation"]["id"])
+        bot_name = decoded["data"]["address"]["bot"]["name"]
+        service_url = decoded["data"]["address"]["serviceUrl"]
+        self.pam.send_message(Constant.BOT_CONNECTOR_MESSAGE, generate_message(
+            type=Constant.BOT_CONNECTOR_MESSAGE,
+            text="Logged in!",
+            bot_id = bot_id,
+            bot_name = bot_name
+        ), converation_id=converation_id, service_url = service_url)
+
 
     def __admin_login(self, request):
         state_token = jwt.encode(json.loads(request)["originalDetectIntentRequest"]["payload"], self.jwt_key, algorithm='HS256').decode()

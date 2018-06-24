@@ -7,22 +7,15 @@ class MsBotConnectorClient:
     def __init__(self, client_id, client_secret):
         self.__get_auth_token(client_id, client_secret)
 
-    def send_message(self, message_object):
-        conversation_id = message_object["converstaion_id"]
-        service_url = message_object["service_url"]
+    def send_message(self, message, **kwargs):
+        conversation_id = kwargs.get("converation_id")
+        service_url = kwargs.get("service_url")
         url = "{}v3/conversations/{}/activities".format(service_url, conversation_id)
+
         print(url)
         print(self.auth_token)
-        print(message_object["message"])
         r = requests.post(url=url,
-                          data=json.dumps({
-                            'type': 'message',
-                             'text': message_object["message"],
-                              'from': {
-                                  'id': message_object["bot_id"],
-                                  'name': message_object['bot_name']
-                              }
-                          }),
+                          data= message,
                           headers={
                               'Content-Type': 'application/json',
                               'Authorization': 'Bearer {}'.format(self.auth_token),
