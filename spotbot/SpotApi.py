@@ -131,8 +131,11 @@ def get_playlist_by_name(access_token, playlist_name, user_id):
             url = request["next"]
     return None
 
-def search_for_song(access_token, track_name, artist):
-    q = "artist:{} {}".format(artist, track_name)
+def search_for_track(access_token, track_name, artist):
+    if artist is not None:
+        q = "artist:{} {}".format(artist, track_name)
+    else:
+        q = track_name
     return __make_api_call(url="https://api.spotify.com/v1/search",
                     params={"q": q,
                             "type":"track",

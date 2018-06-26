@@ -2,6 +2,7 @@ from flask import request,Response,send_from_directory
 import logging
 from Spotbot import Spotbot
 from RequestManager import RequestManager
+import json,codecs
 
 class Routes:
     def __init__(self, app, config):
@@ -22,5 +23,7 @@ class Routes:
         @self.app.route('/webhook', methods=["POST"])
         def webhook():
             js = self.request_manager.analyse_request(request.data.decode('utf-8'))
+            print()
+
             resp = Response(js, status=200, mimetype='application/json')
             return resp

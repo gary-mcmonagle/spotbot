@@ -5,6 +5,8 @@ from proactiveMessgae.ProactiveMessage import ProactiveMessage
 from MessageGenerator import generate_message
 import jwt
 import Constant
+from spotify import Track
+
 class RequestManager:
     def __init__(self, bot, config):
         self.bot = bot
@@ -19,6 +21,7 @@ class RequestManager:
 
     def analyse_request(self, request):
         js = json.loads(request)
+        print(js)
         intent = js['queryResult']['intent']['displayName']
         if intent == 'admin.spotify.login':
             data = self.__admin_login(request)
@@ -64,11 +67,15 @@ class RequestManager:
 
     def __queue_request(self, request_json):
         try:
-            self.bot.queue_request(request_json["queryResult"]["parameters"]["track-title"],
-                                     request_json["queryResult"]["parameters"]["artist-name"])
-            data = generate_message(text="Song Added!")
+            track = self.bot.queue_request(request_json["queryResult"]["parameters"]["track-title"],
+                                     request_json["queryResult"]["parameters"]["artist-name"], 0)
+            print(track.image_url)
+            data = generate_message(buttons={}, card_title=track.track_name,
+                                    card_text="Silly text here",
+                                    card_image_url=track.image_url[0])
         except UnfoundTrack:
             data = generate_message(text="Sorry Couldnt find that song :(")
+        print(data)
         return data
 
     def __get_skype_token(self):
