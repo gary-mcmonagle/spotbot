@@ -131,7 +131,8 @@ def get_playlist_by_name(access_token, playlist_name, user_id):
             url = request["next"]
     return None
 
-def search_for_track(access_token, track_name, artist):
+def search_for_track(access_token, track_name, artist, offset):
+    print(offset)
     if artist is not None:
         q = "artist:{} {}".format(artist, track_name)
     else:
@@ -140,7 +141,10 @@ def search_for_track(access_token, track_name, artist):
                     params={"q": q,
                             "type":"track",
                             #Hardoded IE fix later (maybe)
-                            "market": "IE"},
+                            "market": "IE",
+                            "limit":1,
+                            "offset": offset
+                            },
                     header={'Authorization': 'Bearer {}'.format(access_token),
                             "Content-Type": "application/json",
                             "Accept":"application/json"},

@@ -25,8 +25,8 @@ class RequestManager:
             data = self.__admin_login(request)
         elif intent == "session_init":
             data = self.__session_init()
-        elif intent == "queue-request":
-            data = self.__track_search(js)
+        elif intent == "queue-request" or intent == "queue-request-try-again":
+            data = self.__track_search(js, intent)
         elif intent == "proative-message":
             data = self.__get_skype_token()
         elif intent == "queue-request-success":
@@ -64,13 +64,19 @@ class RequestManager:
         else:
             return json.dumps({'fulfillmentText': bot.get_current_playing_song()})
 
-    #def __track_search(self, request_json):
+    def __track_search(self, request_json,intent):
+        if intent == "queue-request":
+            track_name = request_json["queryResult"]["parameters"]["track-title"]
+            artist_name = request_json["queryResult"]["parameters"]["artist-name"]
+            offset = 0
+        else:
+            track_name = request_json["queryResult"]["outputContexts"][0]["parameters"]["track-title"]
+            artist_name = request_json["queryResult"]["outputContexts"][0]["parameters"]["artist-name"]
+            offset = int(request_json["queryResult"]["outputContexts"][0]["parameters"]["offset"])
 
-
-    def __track_search(self, request_json):
+        print(json.dumps(request_json))
         try:
-            track = self.bot.search_track(request_json["queryResult"]["parameters"]["track-title"],
-                                     request_json["queryResult"]["parameters"]["artist-name"], 0)
+            track = self.bot.search_track(track_name, artist_name, offset)
             buttons = [{
                 "title": "Yes",
                 "value": "Yes"
@@ -93,7 +99,7 @@ class RequestManager:
                                             "name":"queue-request-followup",
                                             "parameters":{
                                                 "track-uri": track.uri,
-                                                "page": track.search_index
+                                                "offset": offset+1
                                             }
                                         }
                                     ])

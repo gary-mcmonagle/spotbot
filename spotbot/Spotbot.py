@@ -36,9 +36,9 @@ class Spotbot:
 
 
     def search_track(self, track_name, artist_name, offset):
-        found_tracks = search_for_track(self.access_token, track_name, artist_name)
+        found_tracks = search_for_track(self.access_token, track_name, artist_name, offset)
         if len(found_tracks) == 0:
-            found_tracks = search_for_track(self.access_token, track_name, None)
+            found_tracks = search_for_track(self.access_token, track_name, None, offset)
         if len(found_tracks) == 0:
             raise UnfoundTrack
         track_json = found_tracks[0]
