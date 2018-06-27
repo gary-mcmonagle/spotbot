@@ -29,8 +29,10 @@ class RequestManager:
             data = self.__track_search(js)
         elif intent == "proative-message":
             data = self.__get_skype_token()
+        elif intent == "queue-request-success":
+            data = self.__queue_song(js)
         else:
-            data = {'fulfillmentText': "Intent not understood"}
+            data = generate_message(text="Cant find intent {}".format(intent))
 
         return data
 
@@ -117,6 +119,10 @@ class RequestManager:
             }
         base_message["type"] = bot_type
         return base_message
+
+    def __queue_song(self, request_info):
+        self.bot.queue_track(request_info["queryResult"]["outputContexts"][0]["parameters"]["track-uri"])
+        return generate_message(text="adding")
 
     def __determine_type(self, request_info):
         print("Source: {}".format(request_info["originalDetectIntentRequest"]["source"]))
