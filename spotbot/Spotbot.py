@@ -21,7 +21,7 @@ class Spotbot:
             create_playlist(self.access_token, self.api_user_id, playlist_name, playlist_name)
             set_playlist_image(self.access_token, self.api_user_id, self.bot_playlist_id, 'bot.jpeg')
         self.bot_playlist_id = get_playlist_by_name(self.access_token, playlist_name, self.api_user_id)['id']
-        #clean_playlist(self.access_token, self.api_user_id, self.bot_playlist_id)
+        clean_playlist(self.access_token, self.api_user_id, self.bot_playlist_id)
 
     def add_track_to_playlist(self, track_uri):
         add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, track_uri)
@@ -43,7 +43,7 @@ class Spotbot:
         track_json = found_tracks[0]
         return Track(track_json["name"], track_json["artists"][0]["name"], track_json["album"]["name"],
                      track_json["uri"], track_json["album"]["images"][len(track_json["album"]["images"]) -1]["url"],
-                     0,0)
+                     0,1)
 
 
     @setInterval(60)

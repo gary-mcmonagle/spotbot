@@ -5,7 +5,6 @@ from proactiveMessgae.ProactiveMessage import ProactiveMessage
 from MessageGenerator import generate_message
 import jwt
 import Constant
-from spotify import Track
 
 class RequestManager:
     def __init__(self, bot, config):
@@ -69,10 +68,32 @@ class RequestManager:
         try:
             track = self.bot.queue_request(request_json["queryResult"]["parameters"]["track-title"],
                                      request_json["queryResult"]["parameters"]["artist-name"], 0)
-            print(track.image_url)
-            data = generate_message(buttons={}, card_title=track.track_name,
-                                    card_text="Silly text here",
-                                    card_image_url=track.image_url[0])
+            buttons = [{
+                "title": "Yes",
+                "value": "Yes"
+            }]
+            if track.search_index != track.total_search_results:
+                buttons.append({
+                    "title": "Try Again",
+                    "value": "Try Again"
+                })
+            buttons.append({
+                "title": "cancel",
+                "value": "Cancel"
+            })
+            data = generate_message(card_title=track.track_name,
+                                    card_image_url=track.image_url[0],
+                                    card_buttons=buttons,
+                                    output_contexts=
+                                    [
+                                        {
+                                            "name":"queue-request-followup",
+                                            "parameters":{
+                                                "track-uri": track.uri,
+                                                "page": track.search_index
+                                            }
+                                        }
+                                    ])
         except UnfoundTrack:
             data = generate_message(text="Sorry Couldnt find that song :(")
         print(data)
