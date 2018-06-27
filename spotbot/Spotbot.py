@@ -31,15 +31,26 @@ class Spotbot:
         song = get_current_playing(self.access_token)
         return "{} - {}".format(song["item"]["artists"][0]["name"], song["item"]["name"])
 
-    def queue_request(self, track_name, artist_name, offset):
+    # def queue_request(self, track_name, artist_name, offset):
+    #     found_tracks = search_for_track(self.access_token, track_name, artist_name)
+    #     if len(found_tracks) == 0:
+    #         found_tracks = search_for_track(self.access_token, track_name, None)
+    #     if len(found_tracks) == 0:
+    #         raise UnfoundTrack
+    #     else:
+    #         add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, found_tracks[0]["uri"])
+    #
+    #     track_json = found_tracks[0]
+    #     return Track(track_json["name"], track_json["artists"][0]["name"], track_json["album"]["name"],
+    #                  track_json["uri"], track_json["album"]["images"][len(track_json["album"]["images"]) -1]["url"],
+    #                  0,1)
+
+    def search_track(self, track_name, artist_name, offset):
         found_tracks = search_for_track(self.access_token, track_name, artist_name)
         if len(found_tracks) == 0:
             found_tracks = search_for_track(self.access_token, track_name, None)
         if len(found_tracks) == 0:
             raise UnfoundTrack
-        else:
-            add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, found_tracks[0]["uri"])
-
         track_json = found_tracks[0]
         return Track(track_json["name"], track_json["artists"][0]["name"], track_json["album"]["name"],
                      track_json["uri"], track_json["album"]["images"][len(track_json["album"]["images"]) -1]["url"],

@@ -20,14 +20,13 @@ class RequestManager:
 
     def analyse_request(self, request):
         js = json.loads(request)
-        print(js)
         intent = js['queryResult']['intent']['displayName']
         if intent == 'admin.spotify.login':
             data = self.__admin_login(request)
         elif intent == "session_init":
             data = self.__session_init()
         elif intent == "queue-request":
-            data = self.__queue_request(js)
+            data = self.__track_search(js)
         elif intent == "proative-message":
             data = self.__get_skype_token()
         else:
@@ -63,10 +62,12 @@ class RequestManager:
         else:
             return json.dumps({'fulfillmentText': bot.get_current_playing_song()})
 
+    #def __track_search(self, request_json):
 
-    def __queue_request(self, request_json):
+
+    def __track_search(self, request_json):
         try:
-            track = self.bot.queue_request(request_json["queryResult"]["parameters"]["track-title"],
+            track = self.bot.search_track(request_json["queryResult"]["parameters"]["track-title"],
                                      request_json["queryResult"]["parameters"]["artist-name"], 0)
             buttons = [{
                 "title": "Yes",
@@ -78,7 +79,7 @@ class RequestManager:
                     "value": "Try Again"
                 })
             buttons.append({
-                "title": "cancel",
+                "title": "Cancel",
                 "value": "Cancel"
             })
             data = generate_message(card_title=track.track_name,
