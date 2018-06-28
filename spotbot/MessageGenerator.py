@@ -102,7 +102,7 @@ def __set_card(message, type, kwargs):
 def __set_message_output_context(output_contexts):
     output_contexts_list = []
     for idx, item in enumerate(output_contexts):
-        life_span = 5
+        life_span = 1
         try:
             life_span = item[life_span]
         except:

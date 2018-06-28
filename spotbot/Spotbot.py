@@ -43,7 +43,7 @@ class Spotbot:
             raise UnfoundTrack
         track_json = found_tracks[0]
         return Track(track_json["name"], track_json["artists"][0]["name"], track_json["album"]["name"],
-                     track_json["uri"], track_json["album"]["images"][len(track_json["album"]["images"]) -1]["url"],
+                     track_json["uri"], track_json["album"]["images"][0]["url"],
                      0,1)
 
 

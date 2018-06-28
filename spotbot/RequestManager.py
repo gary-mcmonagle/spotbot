@@ -23,12 +23,10 @@ class RequestManager:
         intent = js['queryResult']['intent']['displayName']
         if intent == 'admin.spotify.login':
             data = self.__admin_login(request)
-        elif intent == "session_init":
-            data = self.__session_init()
+        elif self.bot is None:
+            data = generate_message(text="No Spotify account connected")
         elif intent == "queue-request" or intent == "queue-request-try-again":
             data = self.__track_search(js, intent)
-        elif intent == "proative-message":
-            data = self.__get_skype_token()
         elif intent == "queue-request-success":
             data = self.__queue_song(js)
         else:
@@ -107,11 +105,6 @@ class RequestManager:
             data = generate_message(text="Sorry Couldnt find that song :(")
         print(data)
         return data
-
-    def __get_skype_token(self):
-        pam = ProactiveMessage("skype", None, skype_client_secret=self.bot_connector_client_id,
-                               skype_client_id=self.bot_connector_client_secret)
-        return json.dumps({'fulfillmentText': "Look at console"})
 
     def __format_by_type(self, request_info):
         bot_type = self.__determine_type(request_info)
