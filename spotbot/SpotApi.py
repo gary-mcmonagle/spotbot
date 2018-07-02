@@ -160,4 +160,23 @@ def add_song_to_playlist(access_token, user_id, playlist_id, track_uri):
                         "uris": [track_uri]
                     }))
 
+def is_track_in_playlist(access_token, user_id, playlist_id, track_uri):
+    all_got = False
+    current_max = 100
+    while not all_got:
+        tracks =__make_api_call(url="https://api.spotify.com/v1/users/{}/playlists/{}/tracks".format(user_id, playlist_id),
+                        method="GET",
+                        header={'Authorization': 'Bearer {}'.format(access_token), "Content-Type": "application/json"})
+        print("URIS")
+        for track in enumerate(tracks["items"]):
+            if track[1]["track"]["uri"] == track_uri:
+                return True
+        if(tracks["total"] <= current_max):
+            all_got = True
+        else:
+            current_max += 100
+    return False
+
+
+
 

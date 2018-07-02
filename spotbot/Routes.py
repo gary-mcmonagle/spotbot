@@ -13,6 +13,11 @@ class Routes:
         self.request_manager = RequestManager(self.bot, config)
 
     def create_routes(self):
+
+        @self.app.route('/hello', methods=["GET"])
+        def hello():
+            return "Hi"
+
         @self.app.route('/callback', methods=["GET"])
         def callback():
             self.bot = Spotbot(request.args.get('code'), self.config["client_id"], self.config["client_secret"],

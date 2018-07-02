@@ -28,7 +28,7 @@ class RequestManager:
         elif intent == "queue-request" or intent == "queue-request-try-again":
             data = self.__track_search(js, intent)
         elif intent == "queue-request-success":
-            data = self.__queue_song(js)
+            data = self.__queue_track(js)
         else:
             data = generate_message(text="Cant find intent {}".format(intent))
 
@@ -119,9 +119,8 @@ class RequestManager:
         base_message["type"] = bot_type
         return base_message
 
-    def __queue_song(self, request_info):
-        self.bot.queue_track(request_info["queryResult"]["outputContexts"][0]["parameters"]["track-uri"])
-        return generate_message(text="adding")
+    def __queue_track(self, request_info):
+        return generate_message(text=self.bot.queue_track(request_info["queryResult"]["outputContexts"][0]["parameters"]["track-uri"]))
 
     def __determine_type(self, request_info):
         print("Source: {}".format(request_info["originalDetectIntentRequest"]["source"]))

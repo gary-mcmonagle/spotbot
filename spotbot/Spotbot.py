@@ -21,18 +21,18 @@ class Spotbot:
             create_playlist(self.access_token, self.api_user_id, playlist_name, playlist_name)
             set_playlist_image(self.access_token, self.api_user_id, self.bot_playlist_id, 'bot.jpeg')
         self.bot_playlist_id = get_playlist_by_name(self.access_token, playlist_name, self.api_user_id)['id']
-        clean_playlist(self.access_token, self.api_user_id, self.bot_playlist_id)
-
-    def add_track_to_playlist(self, track_uri):
-        add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, track_uri)
-
+        #clean_playlist(self.access_token, self.api_user_id, self.bot_playlist_id)
 
     def get_current_playing_song(self):
         song = get_current_playing(self.access_token)
         return "{} - {}".format(song["item"]["artists"][0]["name"], song["item"]["name"])
 
     def queue_track(self, track_uri):
-        add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, track_uri)
+        if not is_track_in_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, track_uri):
+            add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, track_uri)
+            return "Added!"
+        else:
+            return "Track Already In Queue"
 
 
     def search_track(self, track_name, artist_name, offset):
