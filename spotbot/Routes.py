@@ -1,8 +1,8 @@
 from flask import request,Response,send_from_directory
+from functools import wraps
 import logging
 from Spotbot import Spotbot
 from RequestManager import RequestManager
-import json,codecs
 
 class Routes:
     def __init__(self, app, config):
@@ -13,8 +13,8 @@ class Routes:
         self.request_manager = RequestManager(self.bot, config)
 
     def create_routes(self):
-
         @self.app.route('/hello', methods=["GET"])
+        @self.requires_auth
         def hello():
             return "Hi"
 
@@ -26,9 +26,21 @@ class Routes:
             self.request_manager.login_recieved(request.args.get("state"))
             return send_from_directory(".","callback.html")
         @self.app.route('/webhook', methods=["POST"])
+        @self.requires_auth
         def webhook():
             js = self.request_manager.analyse_request(request.data.decode('utf-8'))
-            print()
-
             resp = Response(js, status=200, mimetype='application/json')
             return resp
+
+    def requires_auth(self, f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            auth = request.authorization
+            if not auth or not (self.config["df_user"] == auth.username and self.config["df_pass"] == auth.password):
+                return Response(
+                    'Could not verify your access level for that URL.\n'
+                    'You have to login with proper credentials', 401,
+                    {'WWW-Authenticate': 'Basic realm="Login Required"'}
+                )
+            return f(*args, **kwargs)
+        return decorated
