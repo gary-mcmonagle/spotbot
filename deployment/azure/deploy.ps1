@@ -7,10 +7,10 @@ Param(
     $appServicePlanTier,
     $region,
     $hostingPlanName,
-    $subId
+    $subId, 
+    $configOverrides
 
 )
-
 Login-AzureRmAccount -Subscription $subId
 New-AzureRmResourceGroup -Name $resourceGroupName -Location $region -Force
 $params = @{
@@ -25,7 +25,6 @@ $params = @{
  subscriptionId = $subId
 
 }
-
 Write-Host "INFO: START ARM DEPLOY" -ForegroundColor Yellow
 $deployment = New-AzureRmResourceGroupDeployment -Name "Deployment" -ResourceGroupName $resourceGroupName -Mode Incremental `
 -TemplateFile "$PSScriptRoot\template.json" -TemplateParameterObject $params
@@ -34,6 +33,20 @@ Write-Host "INFO: START ZIP" -ForegroundColor Yellow
 New-Item -Path "$PSScriptRoot\temp" -ItemType Directory | Out-Null
 Copy-Item -Path "$PSScriptRoot\..\..\spotbot\*" -Destination "$PSScriptRoot\temp" -Exclude "venv", ".idea", "__pycache__" -Recurse
 Copy-Item -Path "$PSScriptRoot\webAppConfig\*" -Destination "$PSScriptRoot\temp"
+$config = Get-Content -Path "$PSScriptRoot\temp\config.json" | ConvertFrom-Json
+foreach($key in $configOverrides.Keys){
+    try{
+        $config.$key = $configOverrides[$key]
+    }
+    catch{
+        Write-Host "ERROR SETTING CONFIG $key" -ForegroundColor Red
+        Remove-Item "$PSScriptRoot\temp" -Recurse -Force
+        exit 1 
+    }
+}
+Write-Host $config
+Set-Content -Path "$PSScriptRoot\temp\config.json" -Value ($config | ConvertTo-Json)
+Get-Content -Path "$PSScriptRoot\temp\config.json"
 Add-Type -assembly "system.io.compression.filesystem"
 [io.compression.zipfile]::CreateFromDirectory("$PSScriptRoot\temp", "$PSScriptRoot\deploy.zip") 
 Write-Host "INFO: END ZIP" -ForegroundColor Yellow
