@@ -79,17 +79,16 @@ class RequestManager:
                 "title": "Yes",
                 "value": "Yes"
             }]
-            if track.search_index != track.total_search_results:
-                buttons.append({
-                    "title": "Try Again",
-                    "value": "Try Again"
-                })
+            buttons.append({
+                "title": "Try Again",
+                "value": "Try Again"
+            })
             buttons.append({
                 "title": "Cancel",
                 "value": "Cancel"
             })
             data = generate_message(card_title=track.track_name,
-                                    card_image_url=track.image_url[0],
+                                    card_image_url=track.image_url,
                                     card_buttons=buttons,
                                     output_contexts=
                                     [

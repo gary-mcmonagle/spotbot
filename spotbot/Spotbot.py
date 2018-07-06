@@ -12,7 +12,8 @@ class Spotbot:
         self.callback_uri = callback_uri
         self.api_user_id = get_user_id(self.access_token)
         self.__set_up_bot_playlist()
-        self.admin_session = None
+        self.__fetch_playback_info()
+        self.__fetch_refresh_token()
 
 
     def __set_up_bot_playlist(self):
@@ -43,14 +44,24 @@ class Spotbot:
             raise UnfoundTrack
         track_json = found_tracks[0]
         return Track(track_json["name"], track_json["artists"][0]["name"], track_json["album"]["name"],
-                     track_json["uri"], track_json["album"]["images"][0]["url"],
-                     0,1)
+                     track_json["uri"], track_json["album"]["images"][0]["url"])
 
 
-    @setInterval(60)
-    def fetch_refresh_token(self):
+    @setInterval(30)
+    def __fetch_refresh_token(self):
         print("refreshing token")
         self.access_token = refresh_token(self.client_id, self.client_secret, self.refresh_token)
+
+    @setInterval(10)
+    def __fetch_playback_info(self):
+        print("fetching playback info")
+        playback_state = get_current_playing(self.access_token)
+        if playback_state["is_playing"]:
+            pass
+            #self.playing_track = Track()
+        else:
+            print("Spotify not playing")
+            self.playing_track = None
 
 class UnfoundTrack(Exception):
     pass

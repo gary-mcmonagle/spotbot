@@ -24,6 +24,8 @@ def __make_api_call(**kwargs):
         raise Exception("{}: {}".format(r.status_code, r.text))
     if r.text == "" or r.text == None:
         return None
+    with open('data.json', 'w') as f:
+        f.write(r.text)
     return json.loads(r.text)
 
 def get_access_and_refresh_token(client_id, client_secret, auth_token, callback_uri):

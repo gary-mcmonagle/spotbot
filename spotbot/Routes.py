@@ -11,6 +11,7 @@ class Routes:
         self.create_routes()
         self.bot = None
         self.request_manager = RequestManager(self.bot, config)
+        print("Routes Created!")
 
     def create_routes(self):
         @self.app.route('/hello', methods=["GET"])
