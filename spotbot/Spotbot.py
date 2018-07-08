@@ -3,26 +3,29 @@ from SpotApi import *
 from spotify.Track import Track
 
 class Spotbot:
-    def __init__(self, auth_token , client_id, client_secret, callback_uri):
+    def __init__(self, auth_token , client_id, client_secret, callback_uri, playback_refresh_poll):
         tokens = get_access_and_refresh_token(client_id, client_secret, auth_token, callback_uri)
         self.access_token = tokens['access_token']
         self.refresh_token = tokens['refresh_token']
         self.client_id = client_id
         self.client_secret = client_secret
         self.callback_uri = callback_uri
+        self.playback_refresh_poll = playback_refresh_poll
         self.api_user_id = get_user_id(self.access_token)
         self.__set_up_bot_playlist()
         self.__fetch_playback_info()
         self.__fetch_refresh_token()
+        self.provisional_track = None
 
 
     def __set_up_bot_playlist(self):
-        playlist_name = "Spot Bot"
-        if(get_playlist_by_name(self.access_token, playlist_name, self.api_user_id) == None):
-            create_playlist(self.access_token, self.api_user_id, playlist_name, playlist_name)
+        playlist_name = "spot-bot"
+        playlist = get_playlist_by_name(self.access_token, playlist_name, self.api_user_id)
+        if playlist is None:
+            self.bot_playlist_id = create_playlist(self.access_token, self.api_user_id, playlist_name, playlist_name)["id"]
             set_playlist_image(self.access_token, self.api_user_id, self.bot_playlist_id, 'bot.jpeg')
-        self.bot_playlist_id = get_playlist_by_name(self.access_token, playlist_name, self.api_user_id)['id']
-        #clean_playlist(self.access_token, self.api_user_id, self.bot_playlist_id)
+        else:
+            self.bot_playlist_id = playlist['id']
 
     def get_current_playing_song(self):
         song = get_current_playing(self.access_token)
@@ -35,16 +38,15 @@ class Spotbot:
         else:
             return "Track Already In Queue"
 
-
     def search_track(self, track_name, artist_name, offset):
-        found_tracks = search_for_track(self.access_token, track_name, artist_name, offset)
-        if len(found_tracks) == 0:
-            found_tracks = search_for_track(self.access_token, track_name, None, offset)
-        if len(found_tracks) == 0:
-            raise UnfoundTrack
-        track_json = found_tracks[0]
-        return Track(track_json["name"], track_json["artists"][0]["name"], track_json["album"]["name"],
-                     track_json["uri"], track_json["album"]["images"][0]["url"])
+            found_tracks = search_for_track(self.access_token, track_name, artist_name, offset)
+            if len(found_tracks) == 0:
+                found_tracks = search_for_track(self.access_token, track_name, None, offset)
+            if len(found_tracks) == 0:
+                raise UnfoundTrack
+            track_json = found_tracks[0]
+            return Track(track_json["name"], track_json["artists"][0]["name"], track_json["album"]["name"],
+                         track_json["uri"], track_json["album"]["images"][0]["url"])
 
 
     @setInterval(30)
@@ -56,12 +58,53 @@ class Spotbot:
     def __fetch_playback_info(self):
         print("fetching playback info")
         playback_state = get_current_playing(self.access_token)
-        if playback_state["is_playing"]:
-            pass
-            #self.playing_track = Track()
+        is_playing = True
+        try:
+             is_playing = playback_state["is_playing"]
+        except:
+            is_playing = False
+        if is_playing:
+            self.playing_track = Track(
+                playback_state["item"]["name"],
+                playback_state["item"]["artists"][0]["name"],
+                playback_state["item"]["album"]["name"],
+                playback_state["item"]["uri"],
+                playback_state["item"]["album"]["images"][0]["url"]
+            )
+            self.playlist_playing = self.__check_is_bot_playlist(playback_state)
+            if self.playlist_playing:
+                self.__maintain_playlist_state(playback_state)
         else:
             print("Spotify not playing")
             self.playing_track = None
+            self.playlist_playing = False
+
+    def __check_is_bot_playlist(self, playback_state):
+        if playback_state["context"]["type"] == "playlist":
+            split = playback_state["context"]["uri"].split(":")
+            if split[len(split)-1] == self.bot_playlist_id:
+                return True
+        return False
+
+    def __add_provisional_track_to_playlist(self):
+        add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, "spotify:track:2takcwOaAZWiXQijPHIx7B")
+        print("Adding Provisional Track")
+
+
+    def __maintain_playlist_state(self, playback_state):
+
+        playlist = get_playlist(self.access_token, self.bot_playlist_id, self.api_user_id)
+        tracks = playlist["tracks"]["items"]
+        if playlist["tracks"]["total"] == 0:
+            self.__add_provisional_track_to_playlist()
+        if playlist["tracks"]["total"] == 1:
+            if (playback_state["item"]["duration_ms"] - playback_state["progress_ms"]) <= 45000:
+                self.__add_provisional_track_to_playlist()
+        if tracks[0]["track"]["uri"] != self.playing_track.uri:
+            remove_track_from_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, tracks[0]["track"]["uri"])
+
+
+
 
 class UnfoundTrack(Exception):
     pass

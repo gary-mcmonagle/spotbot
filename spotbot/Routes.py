@@ -22,7 +22,7 @@ class Routes:
         @self.app.route('/callback', methods=["GET"])
         def callback():
             self.bot = Spotbot(request.args.get('code'), self.config["client_id"], self.config["client_secret"],
-                               self.config["bot_url"]+"/callback")
+                               self.config["bot_url"]+"/callback", self.config['playback_refresh_poll'])
             self.request_manager.set_bot(self.bot)
             self.request_manager.login_recieved(request.args.get("state"))
             return send_from_directory(".","callback.html")

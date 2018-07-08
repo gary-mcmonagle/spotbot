@@ -113,6 +113,15 @@ def clean_playlist(access_token, user_id, playlist_id):
                 header={'Authorization': 'Bearer {}'.format(access_token), "Content-Type": "application/json"},
                 body=json.dumps({"tracks": tracks_to_delete})
             )
+#could use kwargs here ?
+def get_playlist(access_token, playlist_id, user_id):
+    return __make_api_call(
+        url="https://api.spotify.com/v1/users/{}/playlists/{}".format(user_id, playlist_id),
+        method="GET",
+        header={'Authorization': 'Bearer {}'.format(access_token), "Content-Type": "application/json"}
+
+    )
+
 
 def get_playlist_by_name(access_token, playlist_name, user_id):
     allchecked = False
@@ -161,6 +170,21 @@ def add_song_to_playlist(access_token, user_id, playlist_id, track_uri):
                     body=json.dumps({
                         "uris": [track_uri]
                     }))
+
+def remove_track_from_playlist(access_token, user_id, playlist_id, track_uri):
+    body = {
+        "tracks": [
+            {
+                "uri": track_uri
+            }
+        ]
+    }
+    __make_api_call(url="https://api.spotify.com/v1/users/{}/playlists/{}/tracks".format(user_id, playlist_id),
+                    method="DELETE",
+                    header={'Authorization': 'Bearer {}'.format(access_token), "Content-Type": "application/json"},
+                    body=json.dumps(body)
+                    )
+
 
 def is_track_in_playlist(access_token, user_id, playlist_id, track_uri):
     all_got = False
