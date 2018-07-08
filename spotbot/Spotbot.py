@@ -12,20 +12,21 @@ class Spotbot:
         self.callback_uri = callback_uri
         self.playback_refresh_poll = playback_refresh_poll
         self.api_user_id = get_user_id(self.access_token)
-        self.__set_up_bot_playlist()
+        self.bot_playlist_id = self.__set_up_bot_playlist("spot-bot", "assets/bot.jpeg")
+        self.bot_persis_playlist_id = self.__set_up_bot_playlist("spot-bot-persis", "assets/bot-persis.jpg")
         self.__fetch_playback_info()
         self.__fetch_refresh_token()
         self.provisional_track = None
 
 
-    def __set_up_bot_playlist(self):
-        playlist_name = "spot-bot"
+    def __set_up_bot_playlist(self, playlist_name, image_path):
         playlist = get_playlist_by_name(self.access_token, playlist_name, self.api_user_id)
         if playlist is None:
-            self.bot_playlist_id = create_playlist(self.access_token, self.api_user_id, playlist_name, playlist_name)["id"]
-            set_playlist_image(self.access_token, self.api_user_id, self.bot_playlist_id, 'bot.jpeg')
+            playlist_id = create_playlist(self.access_token, self.api_user_id, playlist_name, playlist_name)["id"]
+            set_playlist_image(self.access_token, self.api_user_id, playlist_id, image_path)
         else:
-            self.bot_playlist_id = playlist['id']
+            playlist_id = playlist['id']
+        return playlist_id
 
     def get_current_playing_song(self):
         song = get_current_playing(self.access_token)
@@ -58,9 +59,9 @@ class Spotbot:
     def __fetch_playback_info(self):
         print("fetching playback info")
         playback_state = get_current_playing(self.access_token)
-        is_playing = True
+        #is_playing = True
         try:
-             is_playing = playback_state["is_playing"]
+            is_playing = playback_state["is_playing"]
         except:
             is_playing = False
         if is_playing:
@@ -87,12 +88,21 @@ class Spotbot:
         return False
 
     def __add_provisional_track_to_playlist(self):
-        add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, "spotify:track:2takcwOaAZWiXQijPHIx7B")
         print("Adding Provisional Track")
+        persis_playlist = get_playlist(self.access_token, self.bot_persis_playlist_id, self.api_user_id)
+        tracks = persis_playlist["tracks"]["items"]
+        if persis_playlist["tracks"]["total"] == 0:
+            add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id,
+                                 "spotify:track:2takcwOaAZWiXQijPHIx7B")
+        else:
+            uris = []
+            for idx, track in enumerate(tracks):
+                uri = track["track"]["uri"].split(":")
+                uris.append(uri[len(uri)-1])
+            add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, get_recommendations(self.access_token, uris)["tracks"][0]["uri"])
 
 
     def __maintain_playlist_state(self, playback_state):
-
         playlist = get_playlist(self.access_token, self.bot_playlist_id, self.api_user_id)
         tracks = playlist["tracks"]["items"]
         if playlist["tracks"]["total"] == 0:
@@ -101,8 +111,11 @@ class Spotbot:
             if (playback_state["item"]["duration_ms"] - playback_state["progress_ms"]) <= 45000:
                 self.__add_provisional_track_to_playlist()
         if tracks[0]["track"]["uri"] != self.playing_track.uri:
-            remove_track_from_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, tracks[0]["track"]["uri"])
+            self.__recycle_playlist_track(tracks[0]["track"]["uri"])
 
+    def __recycle_playlist_track(self, track_uri):
+        remove_track_from_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, track_uri)
+        add_song_to_playlist(self.access_token, self.api_user_id, self.bot_persis_playlist_id, track_uri)
 
 
 

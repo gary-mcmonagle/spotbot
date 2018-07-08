@@ -2,6 +2,7 @@ import json
 import requests
 import base64
 import logging
+import urllib.parse
 
 def __make_api_call(**kwargs):
 
@@ -202,6 +203,24 @@ def is_track_in_playlist(access_token, user_id, playlist_id, track_uri):
         else:
             current_max += 100
     return False
+
+def get_recommendations(access_token, tracks):
+    track_string = ""
+    for idx, track in enumerate(tracks):
+        track_string += track
+        if idx != len(tracks)-1:
+            track_string += ","
+    print("TS = {}".format( urllib.parse.quote(track_string)))
+    return __make_api_call(url="https://api.spotify.com/v1/recommendations",
+                           method="GET",
+                           header={'Authorization': 'Bearer {}'.format(access_token),
+                                   "Content-Type": "application/json"
+                                   },
+                           params={
+                               "limit": 1,
+                               "seed_tracks": track_string
+                           }
+                           )
 
 
 
