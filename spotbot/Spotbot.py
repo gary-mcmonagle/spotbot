@@ -35,6 +35,7 @@ class Spotbot:
     def queue_track(self, track_uri):
         if not is_track_in_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, track_uri):
             add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, track_uri)
+            add_song_to_playlist(self.access_token, self.api_user_id, self.bot_persis_playlist_id, track_uri)
             return "Added!"
         else:
             return "Track Already In Queue"
@@ -87,19 +88,45 @@ class Spotbot:
                 return True
         return False
 
-    def __add_provisional_track_to_playlist(self):
-        print("Adding Provisional Track")
+    def __set_provisional_track(self):
+        print("Setting Provisional Track")
         persis_playlist = get_playlist(self.access_token, self.bot_persis_playlist_id, self.api_user_id)
-        tracks = persis_playlist["tracks"]["items"]
         if persis_playlist["tracks"]["total"] == 0:
-            add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id,
-                                 "spotify:track:2takcwOaAZWiXQijPHIx7B")
+            self.provisional_track = "spotify:track:2takcwOaAZWiXQijPHIx7B"
         else:
+            offset = persis_playlist["tracks"]["total"] - 5
+            if(offset < 0):
+                offset = 0
+            persis_tracks = get_playlists_tracks(self.access_token, self.api_user_id, self.bot_persis_playlist_id, offset)
             uris = []
-            for idx, track in enumerate(tracks):
+            for idx, track in enumerate(persis_tracks["items"]):
                 uri = track["track"]["uri"].split(":")
-                uris.append(uri[len(uri)-1])
-            add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, get_recommendations(self.access_token, uris)["tracks"][0]["uri"])
+                uris.append(uri[len(uri) - 1])
+            success = False
+            limit = 0
+            while not success:
+                limit += 10
+                recs = self.provisional_track = get_recommendations(self.access_token, uris, limit)["tracks"]#]["uri"]
+                #improve here!!
+                for idx, tr in enumerate(recs):
+                    if not success:
+                        if not is_track_in_playlist(self.access_token, self.api_user_id, self.bot_persis_playlist_id, recs[idx]["uri"]):
+                            self.provisional_track = recs[idx]["uri"]
+                            success = True
+                            print("Using Track {}".format(idx))
+
+
+
+
+
+    def __add_provisional_track_to_playlist(self):
+        print("Adding provisional Track")
+        if self.provisional_track is None:
+            self.__set_provisional_track()
+        print(self.provisional_track)
+        add_song_to_playlist(self.access_token, self.api_user_id, self.bot_playlist_id,
+                             self.provisional_track)
+        self.__set_provisional_track()
 
 
     def __maintain_playlist_state(self, playback_state):
@@ -115,7 +142,7 @@ class Spotbot:
 
     def __recycle_playlist_track(self, track_uri):
         remove_track_from_playlist(self.access_token, self.api_user_id, self.bot_playlist_id, track_uri)
-        add_song_to_playlist(self.access_token, self.api_user_id, self.bot_persis_playlist_id, track_uri)
+        #add_song_to_playlist(self.access_token, self.api_user_id, self.bot_persis_playlist_id, track_uri)
 
 
 

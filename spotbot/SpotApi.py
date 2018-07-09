@@ -204,7 +204,15 @@ def is_track_in_playlist(access_token, user_id, playlist_id, track_uri):
             current_max += 100
     return False
 
-def get_recommendations(access_token, tracks):
+def get_playlists_tracks(access_token, user_id, playlist_id, offset):
+    return __make_api_call(url="https://api.spotify.com/v1/users/{}/playlists/{}/tracks".format(user_id, playlist_id),
+                           method="GET",
+                           header={'Authorization': 'Bearer {}'.format(access_token), "Content-Type": "application/json"},
+                           params={"offset": offset})
+
+
+
+def get_recommendations(access_token, tracks, limit):
     track_string = ""
     for idx, track in enumerate(tracks):
         track_string += track
@@ -217,8 +225,9 @@ def get_recommendations(access_token, tracks):
                                    "Content-Type": "application/json"
                                    },
                            params={
-                               "limit": 1,
-                               "seed_tracks": track_string
+                               "limit": limit ,
+                               "seed_tracks": track_string,
+                               "market": "IE"
                            }
                            )
 
