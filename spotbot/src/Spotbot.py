@@ -1,6 +1,6 @@
-from Decorators import setInterval
-from SpotApi import *
-from spotify.Track import Track
+from src.Decorators import setInterval
+from src.SpotApi import *
+from src.spotify.Track import Track
 
 class Spotbot:
     def __init__(self, auth_token , client_id, client_secret, callback_uri, playback_refresh_poll):
@@ -55,6 +55,7 @@ class Spotbot:
     def __fetch_refresh_token(self):
         print("refreshing token")
         self.access_token = refresh_token(self.client_id, self.client_secret, self.refresh_token)
+
 
     @setInterval(10)
     def __fetch_playback_info(self):

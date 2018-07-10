@@ -1,5 +1,5 @@
-from proactiveMessgae.MsBotConnectorClient import MsBotConnectorClient
-import Constant
+from src.proactiveMessgae.MsBotConnectorClient import MsBotConnectorClient
+import src.Constant as Constant
 class ProactiveMessage:
     def __init__(self, config):
         try:

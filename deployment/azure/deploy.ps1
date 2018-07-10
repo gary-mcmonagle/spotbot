@@ -31,9 +31,9 @@ $deployment = New-AzureRmResourceGroupDeployment -Name "Deployment" -ResourceGro
 Write-Host "INFO: END ARM DEPLOY" -ForegroundColor Yellow
 Write-Host "INFO: START ZIP" -ForegroundColor Yellow
 New-Item -Path "$PSScriptRoot\temp" -ItemType Directory | Out-Null
-Copy-Item -Path "$PSScriptRoot\..\..\spotbot\*" -Destination "$PSScriptRoot\temp" -Exclude "venv", ".idea", "__pycache__" -Recurse
+Copy-Item -Path "$PSScriptRoot\..\..\spotbot\*" -Destination "$PSScriptRoot\temp" -Exclude "venv", ".idea", "__pycache__", "node_modules" -Recurse
 Copy-Item -Path "$PSScriptRoot\webAppConfig\*" -Destination "$PSScriptRoot\temp"
-$config = Get-Content -Path "$PSScriptRoot\temp\config.json" | ConvertFrom-Json
+$config = Get-Content -Path "$PSScriptRoot\temp\src\config.json" | ConvertFrom-Json
 foreach($key in $configOverrides.Keys){
     try{
         $config.$key = $configOverrides[$key]
@@ -45,8 +45,8 @@ foreach($key in $configOverrides.Keys){
     }
 }
 Write-Host $config
-Set-Content -Path "$PSScriptRoot\temp\config.json" -Value ($config | ConvertTo-Json)
-Get-Content -Path "$PSScriptRoot\temp\config.json"
+Set-Content -Path "$PSScriptRoot\temp\src\config.json" -Value ($config | ConvertTo-Json)
+Get-Content -Path "$PSScriptRoot\temp\src\config.json"
 Add-Type -assembly "system.io.compression.filesystem"
 [io.compression.zipfile]::CreateFromDirectory("$PSScriptRoot\temp", "$PSScriptRoot\deploy.zip") 
 Write-Host "INFO: END ZIP" -ForegroundColor Yellow

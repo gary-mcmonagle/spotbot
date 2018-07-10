@@ -1,4 +1,4 @@
-import Constant
+import src.Constant as Constant
 import json
 def generate_message(**kwargs):
     message = {}

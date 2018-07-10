@@ -1,10 +1,10 @@
 import json
 import urllib.parse
-from Spotbot import UnfoundTrack
-from proactiveMessgae.ProactiveMessage import ProactiveMessage
-from MessageGenerator import generate_message
+from src.Spotbot import UnfoundTrack
+from src.proactiveMessgae.ProactiveMessage import ProactiveMessage
+from src.MessageGenerator import generate_message
 import jwt
-import Constant
+import src.Constant as Constant
 
 
 class RequestManager:

@@ -1,6 +1,6 @@
 import json
 import requests
-from Decorators import setInterval
+from src.Decorators import setInterval
 
 
 class MsBotConnectorClient:

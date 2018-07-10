@@ -1,8 +1,8 @@
 from flask import request,Response,send_from_directory,render_template
 from functools import wraps
 import logging
-from Spotbot import Spotbot
-from RequestManager import RequestManager
+from src.Spotbot import Spotbot
+from src.RequestManager import RequestManager
 
 class Routes:
     def __init__(self, app, config):

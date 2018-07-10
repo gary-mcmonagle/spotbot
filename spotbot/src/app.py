@@ -1,12 +1,17 @@
 from flask import Flask
 import json
-from Routes import Routes
+from src.Routes import Routes
 import logging
 from applicationinsights.flask.ext import AppInsights
 
 logging.basicConfig(filename='myapp.log', level=logging.INFO)
 
-with open('config.json') as f:
+config_path = 'src/config.json'
+
+if __name__ == "__main__":
+    config_path = 'config.json'
+
+with open(config_path) as f:
     app_config = json.load(f)
 
 
