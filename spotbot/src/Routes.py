@@ -1,4 +1,4 @@
-from flask import request,Response,send_from_directory
+from flask import request,Response,send_from_directory,render_template
 from functools import wraps
 import logging
 from Spotbot import Spotbot
@@ -18,6 +18,10 @@ class Routes:
         @self.requires_auth
         def hello():
             return "Hi"
+
+        @self.app.route('/admin')
+        def admin():
+            return render_template("index.html")
 
         @self.app.route('/callback', methods=["GET"])
         def callback():

@@ -6,6 +6,7 @@ from MessageGenerator import generate_message
 import jwt
 import Constant
 
+
 class RequestManager:
     def __init__(self, bot, config):
         self.bot = bot
