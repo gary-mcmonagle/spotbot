@@ -1,8 +1,10 @@
 from flask import request,Response,send_from_directory,render_template
 from functools import wraps
 import logging
+import json
 from src.Spotbot import Spotbot
 from src.RequestManager import RequestManager
+from flask_cors import CORS, cross_origin
 
 class Routes:
     def __init__(self, app, config):
@@ -18,6 +20,16 @@ class Routes:
         @self.requires_auth
         def hello():
             return "Hi"
+
+        @self.app.route('/get_info')
+        @cross_origin()
+        def get_info():
+            if self.bot is None:
+                return json.dumps({
+                    "message": "Bot Not Initialised"
+                })
+            else:
+                return self.bot.get_info()
 
         @self.app.route('/admin')
         def admin():

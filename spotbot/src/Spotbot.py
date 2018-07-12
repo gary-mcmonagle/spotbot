@@ -17,6 +17,7 @@ class Spotbot:
         self.__fetch_playback_info()
         self.__fetch_refresh_token()
         self.provisional_track = None
+        self.playlist_playing = False
 
 
     def __set_up_bot_playlist(self, playlist_name, image_path):
@@ -61,7 +62,6 @@ class Spotbot:
     def __fetch_playback_info(self):
         print("fetching playback info")
         playback_state = get_current_playing(self.access_token)
-        #is_playing = True
         try:
             is_playing = playback_state["is_playing"]
         except:
@@ -115,10 +115,13 @@ class Spotbot:
                             self.provisional_track = recs[idx]["uri"]
                             success = True
                             print("Using Track {}".format(idx))
-
-
-
-
+    def get_info(self):
+        base = {
+            "playlist_playing": self.playlist_playing
+        }
+        if self.playlist_playing:
+            base["track_name"] = self.playing_track.track_name
+        return json.dumps(base)
 
     def __add_provisional_track_to_playlist(self):
         print("Adding provisional Track")

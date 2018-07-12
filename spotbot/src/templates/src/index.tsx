@@ -1,9 +1,12 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { Parent } from "./components/Parent";
 
-import { Hello } from "./components/Hello";
+
 
 ReactDOM.render(
-    <Hello compiler="TypeScript" framework="React" />,
-    document.getElementById("example")
+    <div>
+    <Parent dataEndpoint="" />
+    </div>,document.getElementById("Track")
+    
 );
