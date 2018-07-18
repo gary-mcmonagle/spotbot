@@ -120,7 +120,8 @@ class Spotbot:
             "playlist_playing": self.playlist_playing
         }
         if self.playlist_playing:
-            base["track_name"] = self.playing_track.track_name
+            base["track_name"] =  self.playing_track.track_name
+            base["track"] = self.playing_track.get()
         return json.dumps(base)
 
     def __add_provisional_track_to_playlist(self):

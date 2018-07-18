@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <head>
         <meta charset="UTF-8" />
-        <title>Hello React!</title>
+        <title>SpotBot</title>
     </head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <body>
-        <div id="Track"></div>
+        <div id="Parent"></div>
         <!-- Dependencies -->
         <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
         <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-
         <!-- Main -->
         <script src="{{ url_for('static', filename='bundle.js') }}"></script>
     </body>

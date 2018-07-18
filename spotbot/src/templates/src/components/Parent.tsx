@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { Track } from './Track';
 
-export interface ParentProps {dataEndpoint: string;}
+export interface ParentProps {dataEndpoint: string; refreshPeriod:number;}
 
 export class Parent extends React.Component<ParentProps, {}> {
 
@@ -20,11 +20,20 @@ export class Parent extends React.Component<ParentProps, {}> {
 
     componentDidMount() {
         this.refreshData(this.props.dataEndpoint);
-        setInterval(() => this.setState({ data: this.data}), 1000);
+        setInterval(() => this.setState({ data: this.data}), this.props.refreshPeriod);
    }
     render() {
         this.refreshData(this.props.dataEndpoint);
-        return 
-        <Track track_title= {this.data.track_name} />
+        if(this.data.playlist_playing){
+            return <div>
+                <Track track_title ={this.data.track.title}
+                album = {this.data.track.album}
+                artist={this.data.track.artist}
+                imageUrl = {this.data.track.image_url} />
+            </div>
+        }
+        else{
+            return <div><h1>Bot playlist not playing!!</h1></div> 
+        }       
     }
 }

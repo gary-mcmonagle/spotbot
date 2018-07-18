@@ -31,7 +31,7 @@ class Routes:
             else:
                 return self.bot.get_info()
 
-        @self.app.route('/admin')
+        @self.app.route('/live')
         def admin():
             return render_template("index.html")
 
