@@ -18,12 +18,6 @@ with open(config_path) as f:
 
 application = Flask(__name__)
 CORS(application)
-# try:
-#     application.config['APPINSIGHTS_INSTRUMENTATIONKEY'] = app_config["app_insights_ins_key"]
-#     AppInsights(application)
-# except:
-#     pass
-
 
 routes = Routes(application, app_config)
 
