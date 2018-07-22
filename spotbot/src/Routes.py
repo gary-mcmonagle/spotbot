@@ -2,9 +2,10 @@ from flask import request,Response,send_from_directory,render_template
 from functools import wraps
 import logging
 import json
-from src.Spotbot import Spotbot
 from src.RequestManager import RequestManager
 from flask_cors import CORS, cross_origin
+from src.services.Spotify import Spotify
+from src.Bot import Bot
 
 class Routes:
     def __init__(self, app, config):
@@ -37,8 +38,11 @@ class Routes:
 
         @self.app.route('/callback', methods=["GET"])
         def callback():
-            self.bot = Spotbot(request.args.get('code'), self.config["client_id"], self.config["client_secret"],
-                               self.config["bot_url"]+"/callback", self.config['playback_refresh_poll'])
+            # self.bot = Spotbot(request.args.get('code'), self.config["client_id"], self.config["client_secret"],
+            #                    self.config["bot_url"]+"/callback", self.config['playback_refresh_poll'])
+            spotify = Spotify(self.config["client_id"], self.config["client_secret"],
+                              self.config["bot_url"]+"/callback", request.args.get('code'))
+            self.bot = Bot(spotify)
             self.request_manager.set_bot(self.bot)
             self.request_manager.login_recieved(request.args.get("state"))
             return send_from_directory(".","callback.html")

@@ -1,0 +1,4 @@
+PUT = "PUT"
+GET = "GET"
+POST = "POST"
+DELETE = "DELETE"
