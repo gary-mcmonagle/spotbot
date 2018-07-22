@@ -5,10 +5,13 @@ import { Parent } from "./components/Parent";
 //import { Track } from './components/Track';
 
 
+var getUrl = window.location;
+var baseUrl = getUrl .protocol + "//" + getUrl.host;
+var dataEndpoint = baseUrl +  "/get_info"; 
 
 ReactDOM.render(
     <div>
-    <Parent dataEndpoint="https://spotify-bot-gary.azurewebsites.net/get_info" refreshPeriod={10*1000}/>
+    <Parent dataEndpoint={dataEndpoint} refreshPeriod={10*1000}/>
     </div>,document.getElementById("Parent")
     
 );

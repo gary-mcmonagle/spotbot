@@ -1,6 +1,6 @@
 import json
 import urllib.parse
-from src.Spotbot import UnfoundTrack
+from src.Bot import UnfoundTrack
 from src.proactiveMessgae.ProactiveMessage import ProactiveMessage
 from src.MessageGenerator import generate_message
 import jwt

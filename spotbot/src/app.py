@@ -2,7 +2,6 @@ from flask import Flask
 import json
 from src.Routes import Routes
 import logging
-from applicationinsights.flask.ext import AppInsights
 from flask_cors import CORS, cross_origin
 
 logging.basicConfig(filename='myapp.log', level=logging.INFO)

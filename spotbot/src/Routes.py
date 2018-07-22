@@ -2,7 +2,6 @@ from flask import request,Response,send_from_directory,render_template
 from functools import wraps
 import logging
 import json
-from src.Spotbot import Spotbot
 from src.RequestManager import RequestManager
 from flask_cors import CORS, cross_origin
 from src.services.Spotify import Spotify
